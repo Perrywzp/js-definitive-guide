@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>高阶函数（接收两函数，合并他们，返回一个新的函数）</title>
+</head>
+<body>
+
+</body>
+<script>
+    function compose(f, g){
+        return function(){
+            return f.call(this, g.apply(this, arguments));
+        }
+    }
+
+    var square = function(x) {return x*x};
+    var sum = function(x,y) {return x+y};
+    var squareofsum = compose(square, sum); //返回了一个新的函数（前两个函数的合并体）
+    document.write(squareofsum(2,3));
+</script>
+</html>
