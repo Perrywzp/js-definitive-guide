@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>不完全函数</title>
+</head>
+
+<body>
+
+</body>
+<script>
+  function compose(f, g) {
+    return function() {
+      return f.call(this, g.apply(this, arguments));
+    }
+  }
+
+  var square = function(x) {
+    return x * x
+  };
+  var sum = function(x, y) {
+    return x + y
+  };
+
+  function array(a, n) {
+    return Array.prototype.slice.call(a, n || 0);
+  }
+
+  function partialLeft(f /*, ...*/ ) {
+    var args = arguments;
+    return function() {
+      var a = array(args, 1);
+      a = a.concat(array(arguments));
+      return f.apply(this, a);
+    }
+  }
+
+  function partialRight(f) {
+    var args = arguments;
+    return function() {
+      var a = array(arguments);
+      a = a.concat(array(args, 1));
+      return f.apply(this, a);
+    }
+  }
+
+  function partial(f) {
+    var args = arguments;
+    return function() {
+      var a = array(args, 1);
+      var i = 0,
+        j = 0;
+
+      for (; i < a.length; i++)
+        if (a[i] === undefined) a[i] = arguments[j++];
+
+      a = a.concat(array(arguments, j));
+      return f.apply(this, a);
+    }
+  }
+
+  var f = function(x, y, z) {
+    return x * (y - z);
+  }
+  partialLeft(f, 2)(3, 4);
+  partialRight(f, 2)(3, 4);
+  partial(f, undefined, 2)(3, 4);
+
+  // 利用已有的函数来定义新的函数
+  var increment = partialLeft(sum, 1);
+  var cuberoot = partialRight(Math.pow, 4);
+  String.prototype.first = partial(String.prototype.charAt,  0);
+  String.prototype.last = partial(String.prototype.substr, -1, 1);
+
+  // 将不完全调用和高阶函数整合在一起
+  var not = partialLeft(compose, function(x) {return !x});
+  var even = function(x) {return x % 2 === 0};
+  var odd = not(even);
+  var isNumber = not(isNaN);
+</script>
+
+</html>
